@@ -1,86 +1,33 @@
 ---
 - hosts: localhost
   become: yes
-
+  connection: local
   tasks:
-    - name: Install basic dependencies
+    - name: Update package database
+      pacman:
+        update_cache: yes
+
+    - name: Install Hyprland and dependencies
       pacman:
         name:
-          - base-devel
-          - git
-          - wget
-          - curl
-        state: present
-
-    - name: Install yay (AUR helper)
-      git:
-        repo: https://aur.archlinux.org/yay.git
-        dest: /tmp/yay
-      become_user: "{{ lookup('env', 'USER') }}"
-      when: ansible_distribution == "Archlinux"
-
-    - name: Build and install yay
-      command: "makepkg -si --noconfirm"
-      args:
-        chdir: /tmp/yay
-      become_user: "{{ lookup('env', 'USER') }}"
-      when: ansible_distribution == "Archlinux"
-
-    - name: Clean up yay installation files
-      file:
-        path: /tmp/yay
-        state: absent
-      when: ansible_distribution == "Archlinux"
-
-    - name: Install Hyprland from AUR
-      command: "yay -S --noconfirm hyprland"
-      when: ansible_distribution == "Archlinux"
-
-    - name: Install Wayland dependencies
-      pacman:
-        name:
-          - wayland
+          - hyprland
           - xorg-server
           - xorg-xwayland
-          - wayland-protocols
-        state: present
-
-    - name: Install GUI-related packages
-      pacman:
-        name:
-          - alacritty
-          - dmenu
-          - rofi
+          - sddm
+          - sddm-wayland
+          - wayland
+          - wayland-utils
           - wl-clipboard
-          - waybar
+          - swaybg
+          - kitty  # Terminal emulator
+          - dmenu  # Application launcher
+          - rofi   # Alternative to dmenu (optional)
+          - neovim # Text editor (optional)
+          - git    # Version control
         state: present
 
-    - name: Install additional utilities
-      pacman:
-        name:
-          - neovim
-          - ranger
-          - htop
-          - firefox
-          - zsh
-          - starship
-        state: present
-
-    - name: Set default shell to zsh
-      user:
-        name: "{{ lookup('env', 'USER') }}"
-        shell: /bin/zsh
-    - name: Install fonts
-      pacman:
-        name:
-          - ttf-dejavu
-          - noto-fonts
-          - noto-fonts-emoji
-        state: present
-
-    - name: Install other applications (AUR)
-      command: "yay -S --noconfirm spotify discord"
-      when: ansible_distribution == "Archlinux"
-
-
-      #sudo pacman -S base-devel wayland wlroots xorg-xwayland libseat libinput pipewire pipewire-pulse pavucontrol swaybg
+    - name: Enable SDDM (Simple Desktop Display Manager)
+      systemd:
+        name: sddm.service
+        enabled: yes
+        state: started
