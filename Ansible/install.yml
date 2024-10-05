@@ -3,14 +3,9 @@
   become: yes
 
   tasks:
-    - name: Update system packages
-      pacman:
-        update_cache: yes
-        upgrade: yes
-
     - name: Install basic dependencies
       pacman:
-        name: 
+        name:
           - base-devel
           - git
           - wget
@@ -75,8 +70,6 @@
       user:
         name: "{{ lookup('env', 'USER') }}"
         shell: /bin/zsh
-
-
     - name: Install fonts
       pacman:
         name:
