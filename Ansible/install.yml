@@ -26,16 +26,14 @@
       when: ansible_distribution == "Archlinux"
 
     - name: Build and install yay
-      command: "makepkg -si"
+      command: "makepkg -si --noconfirm"
       args:
         chdir: /tmp/yay
       when: ansible_distribution == "Archlinux"
 
     - name: Install Hyprland from AUR
-      pacman:
-        name: hyprland
-        state: present
-        use: yay
+      command: yay -S --noconfirm hyprland
+      when: ansible_distribution == "Archlinux"
 
     - name: Install Wayland dependencies
       pacman:
@@ -81,9 +79,5 @@
         state: present
 
     - name: Install other applications (AUR)
-      pacman:
-        name:
-          - spotify
-          - discord
-        state: present
-        use: yay
+      command: yay -S --noconfirm spotify discord
+      when: ansible_distribution == "Archlinux"
