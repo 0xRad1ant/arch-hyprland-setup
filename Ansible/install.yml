@@ -81,3 +81,6 @@
     - name: Install other applications (AUR)
       command: "yay -S --noconfirm spotify discord"
       when: ansible_distribution == "Archlinux"
+
+
+      #sudo pacman -S base-devel wayland wlroots xorg-xwayland libseat libinput pipewire pipewire-pulse pavucontrol swaybg
