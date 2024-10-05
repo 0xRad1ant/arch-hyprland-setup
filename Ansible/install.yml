@@ -1,0 +1,89 @@
+---
+- hosts: localhost
+  become: yes
+
+  tasks:
+    - name: Update system packages
+      pacman:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install basic dependencies
+      pacman:
+        name: 
+          - base-devel
+          - git
+          - wget
+          - curl
+        state: present
+
+    - name: Install yay (AUR helper)
+      git:
+        repo: https://aur.archlinux.org/yay.git
+        dest: /tmp/yay
+      become: yes
+      become_user: "{{ lookup('env', 'USER') }}"
+      when: ansible_distribution == "Archlinux"
+
+    - name: Build and install yay
+      command: "makepkg -si"
+      args:
+        chdir: /tmp/yay
+      when: ansible_distribution == "Archlinux"
+
+    - name: Install Hyprland from AUR
+      pacman:
+        name: hyprland
+        state: present
+        use: yay
+
+    - name: Install Wayland dependencies
+      pacman:
+        name:
+          - wayland
+          - xorg-server
+          - xorg-xwayland
+          - wayland-protocols
+        state: present
+
+    - name: Install GUI-related packages
+      pacman:
+        name:
+          - alacritty
+          - dmenu
+          - rofi
+          - wl-clipboard
+          - waybar
+        state: present
+
+    - name: Install additional utilities
+      pacman:
+        name:
+          - neovim
+          - ranger
+          - htop
+          - firefox
+          - zsh
+          - starship
+        state: present
+
+    - name: Set default shell to zsh
+      user:
+        name: "{{ lookup('env', 'USER') }}"
+        shell: /bin/zsh
+
+    - name: Install fonts
+      pacman:
+        name:
+          - ttf-dejavu
+          - noto-fonts
+          - noto-fonts-emoji
+        state: present
+
+    - name: Install other applications (AUR)
+      pacman:
+        name:
+          - spotify
+          - discord
+        state: present
+        use: yay
