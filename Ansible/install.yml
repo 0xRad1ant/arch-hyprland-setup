@@ -21,7 +21,6 @@
       git:
         repo: https://aur.archlinux.org/yay.git
         dest: /tmp/yay
-      become: yes
       become_user: "{{ lookup('env', 'USER') }}"
       when: ansible_distribution == "Archlinux"
 
@@ -29,10 +28,17 @@
       command: "makepkg -si --noconfirm"
       args:
         chdir: /tmp/yay
+      become_user: "{{ lookup('env', 'USER') }}"
+      when: ansible_distribution == "Archlinux"
+
+    - name: Clean up yay installation files
+      file:
+        path: /tmp/yay
+        state: absent
       when: ansible_distribution == "Archlinux"
 
     - name: Install Hyprland from AUR
-      command: yay -S --noconfirm hyprland
+      command: "yay -S --noconfirm hyprland"
       when: ansible_distribution == "Archlinux"
 
     - name: Install Wayland dependencies
@@ -70,6 +76,7 @@
         name: "{{ lookup('env', 'USER') }}"
         shell: /bin/zsh
 
+
     - name: Install fonts
       pacman:
         name:
@@ -79,5 +86,5 @@
         state: present
 
     - name: Install other applications (AUR)
-      command: yay -S --noconfirm spotify discord
+      command: "yay -S --noconfirm spotify discord"
       when: ansible_distribution == "Archlinux"
